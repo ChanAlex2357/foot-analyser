@@ -1,4 +1,9 @@
 import javax.swing.*;
+
+import foot.Terrain;
+import ui.components.panel.TerrainPanel;
+import ui.foot.TerrainUI;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,6 +15,7 @@ public class FootAnalyserFrame extends JFrame {
     private JButton secondButton;
     private Terrain terrain;
     private TerrainPanel terrainPanel;
+    private TerrainUI terrainUI;
 
     public FootAnalyserFrame() {
         setTitle("FootAnalyser");
@@ -30,6 +36,7 @@ public class FootAnalyserFrame extends JFrame {
         terrainPanel = new TerrainPanel();
         add(terrainPanel, BorderLayout.EAST);
 
+
         browseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -49,11 +56,17 @@ public class FootAnalyserFrame extends JFrame {
         });
     }
 
+    public void setTerrainUI(TerrainUI terrainUI) {
+        this.terrainUI = terrainUI;
+    }
+    public TerrainUI getTerrainUI() {
+        return terrainUI;
+    }
     @Override
     public void paint(Graphics g) {
         super.paint(g);
         if (terrain != null) {
-            terrain.draw(g, 0, 0);
+            getTerrainUI().draw(g);
         }
     }
 }
