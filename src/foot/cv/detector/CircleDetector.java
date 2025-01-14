@@ -1,9 +1,9 @@
 package foot.cv.detector;
 
 import org.opencv.core.*;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
+import foot.cv.util.ImageUtils;
 import ui.components.panel.CircleDetectionConfigPanel;
 
 import java.util.ArrayList;
@@ -23,7 +23,12 @@ public class CircleDetector extends Detector{
     }
 
     public Mat detect(String imagePath) {
-        Mat src = Imgcodecs.imread(imagePath, Imgcodecs.IMREAD_COLOR);
+        Mat src = ImageUtils.loadImage(imagePath);
+        return detect(src);
+        
+    }
+
+    public Mat detect(Mat src) {
         Mat gray = new Mat();
         Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
         Imgproc.medianBlur(gray, gray, 5);
@@ -32,14 +37,7 @@ public class CircleDetector extends Detector{
                 (double)gray.rows()/16, // change this value to detect circles with different distances to each other
                 100.0, 30.0, getMin_radius(), getMax_radius()); // change the last two parameters
         // (min_radius & max_radius) to detect larger circles
-        for (int x = 0; x < circles.cols(); x++) {
-            double[] c = circles.get(0, x);
-            Point center = new Point(Math.round(c[0]), Math.round(c[1]));
-            int radius = (int) Math.round(c[2]);
-            Imgproc.circle(src, center, radius, new Scalar(0,255,0), 3, 8, 0 );
-            getCircleList().add(src);
-        }
-        return src;
+        return circles;
     }
 
     List<Mat> circleList = new ArrayList<>();
