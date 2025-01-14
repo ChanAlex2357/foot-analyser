@@ -30,13 +30,8 @@ public class CheckButton extends ActionButton {
         if (terrain != null) {
             CircleDetectionConfigPanel configPanel = footAnalyserFrame.getConfigPanel();
             TerrainAnalyser terrainAnalyser = new TerrainAnalyser(terrain, configPanel);
+            terrainAnalyser.loadOffside();
             terrainAnalyser.paintCircles();
-
-           List<Player> players = terrainAnalyser.loadPlayers();
-           Ball ball = terrainAnalyser.loadBall();
-            System.out.println();
-
-
             Mat src = terrainAnalyser.getImageSrc();
             ImageFrame imageFrame = new ImageFrame(MatUtils.Mat2BufferedImage(src));
             imageFrame.setVisible(true);

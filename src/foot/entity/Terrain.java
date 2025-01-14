@@ -11,6 +11,7 @@ public class Terrain {
 
     private Player[] players;
     private Ball ball;
+    private Team[] teams;
 
     public Terrain(ImageIcon imageIcon, Dimension panelSize) {
         this.size = new Dimension(imageIcon.getIconWidth(), imageIcon.getIconHeight());
@@ -64,5 +65,13 @@ public class Terrain {
 
     public void setBall(Ball ball) {
         this.ball = ball;
+    }
+
+    public Team[] getTeams() {
+        return teams;
+    }
+
+    public void setTeams(Team[] teams) {
+        this.teams = teams;
     }
 }
