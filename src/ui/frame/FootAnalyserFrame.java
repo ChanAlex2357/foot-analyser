@@ -11,6 +11,7 @@ import foot.Terrain;
 import ui.components.button.CheckButton;
 import ui.components.button.ImportImageButton;
 import ui.components.button.ImportTerainButtion;
+import ui.components.panel.CircleDetectionConfigPanel;
 import ui.components.panel.TerrainPanel;
 import ui.foot.TerrainUI;
 
@@ -20,6 +21,7 @@ public class FootAnalyserFrame extends JFrame{
     private CheckButton secondButton;
     private Terrain terrain;
     private TerrainPanel terrainPanel;
+    private CircleDetectionConfigPanel configPanel;
 
     private void build(){
         setTitle("FootAnalyser");
@@ -38,6 +40,8 @@ public class FootAnalyserFrame extends JFrame{
         setSecondButton(new CheckButton(this));
         // Terrain Panel
         setTerrainPanel(new TerrainPanel());
+
+        setConfigPanel(new CircleDetectionConfigPanel());
     }
 
     public ImportImageButton getImportImageButtion() {
@@ -94,5 +98,14 @@ public class FootAnalyserFrame extends JFrame{
         if (this.getTerrain()!=null) {
             new TerrainUI(terrain, 0, 0).draw(g);
         }
+    }
+
+    public CircleDetectionConfigPanel getConfigPanel() {
+        return configPanel;
+    }
+
+    public void setConfigPanel(CircleDetectionConfigPanel configPanel) {
+        this.configPanel = configPanel;
+        this.add(configPanel,BorderLayout.EAST);
     }
 }

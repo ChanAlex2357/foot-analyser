@@ -7,6 +7,7 @@ public class Terrain {
     private Image image;
     private Dimension size;
     private boolean isVertical;
+    private String imagePath;
 
     public Terrain(ImageIcon imageIcon, Dimension panelSize) {
         this.size = new Dimension(imageIcon.getIconWidth(), imageIcon.getIconHeight());
@@ -24,5 +25,25 @@ public class Terrain {
 
     public Image getImage() {
         return image;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
+    }
+
+    public void setSize(Dimension size) {
+        this.size = size;
+    }
+
+    public void setVertical(boolean isVertical) {
+        this.isVertical = isVertical;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 }

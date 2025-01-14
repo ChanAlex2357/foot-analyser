@@ -23,6 +23,7 @@ public class ImportTerainButtion extends ImportImageButton {
         FootAnalyserFrame footAnalyserFrame = (FootAnalyserFrame)getParentComponent();
         Dimension panelSize = getShowerLabel().getSize();
         footAnalyserFrame.setTerrain(new Terrain(getImportedImage(), panelSize));
+        footAnalyserFrame.getTerrain().setImagePath(getFilePath());
         footAnalyserFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         footAnalyserFrame.getSecondButton().setVisible(true);
         footAnalyserFrame.updateTerrainDetails();

@@ -9,6 +9,15 @@ import javax.swing.JLabel;
 
 public class ImportImageButton extends ImportButtion {
     ImageIcon importedImage;
+    String filePath;
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
     public ImportImageButton(Component parent,JLabel labelView){
         super(parent,labelView);
     }
@@ -17,6 +26,7 @@ public class ImportImageButton extends ImportButtion {
     public void actionPerformed(ActionEvent e) {
         importFile();
         File selectedFile = getImportedFile();
+        setFilePath(selectedFile.getAbsolutePath());
         setImportedImageFromFile(selectedFile);
         showImage(getImportedImage());
     }
