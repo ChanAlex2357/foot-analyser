@@ -1,7 +1,7 @@
 package ui.components.panel;
 import javax.swing.*;
 
-import foot.Terrain;
+import foot.entity.Terrain;
 
 public class TerrainPanel extends JPanel {
     private JLabel sizeLabel;

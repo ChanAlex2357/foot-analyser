@@ -5,7 +5,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import foot.Terrain;
+import foot.entity.Terrain;
 import interfaces.DrawableComponent;
 
 public class TerrainUI implements DrawableComponent{

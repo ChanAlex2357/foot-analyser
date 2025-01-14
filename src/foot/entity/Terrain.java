@@ -1,4 +1,4 @@
-package foot;
+package foot.entity;
 import javax.swing.*;
 
 import java.awt.*;
@@ -8,6 +8,9 @@ public class Terrain {
     private Dimension size;
     private boolean isVertical;
     private String imagePath;
+
+    private Player[] players;
+    private Ball ball;
 
     public Terrain(ImageIcon imageIcon, Dimension panelSize) {
         this.size = new Dimension(imageIcon.getIconWidth(), imageIcon.getIconHeight());
@@ -45,5 +48,21 @@ public class Terrain {
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public Player[] getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(Player[] players) {
+        this.players = players;
+    }
+
+    public Ball getBall() {
+        return ball;
+    }
+
+    public void setBall(Ball ball) {
+        this.ball = ball;
     }
 }

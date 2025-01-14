@@ -3,7 +3,7 @@ package ui.components.button;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-import foot.Terrain;
+import foot.entity.Terrain;
 import ui.foot.TerrainUI;
 import ui.frame.FootAnalyserFrame;
 

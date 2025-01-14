@@ -7,7 +7,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-import foot.Terrain;
+import foot.entity.Terrain;
 import ui.components.button.CheckButton;
 import ui.components.button.ImportImageButton;
 import ui.components.button.ImportTerainButtion;

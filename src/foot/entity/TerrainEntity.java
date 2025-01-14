@@ -1,4 +1,4 @@
-package foot;
+package foot.entity;
 
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
@@ -6,7 +6,7 @@ import org.opencv.core.Scalar;
 public class TerrainEntity {
     Point coord;
     Scalar color;
-    public TerrainEntity(int x , int y , Scalar color) {
+    public TerrainEntity(double x , double y , Scalar color) {
         setCoord(x , y);
         setColor(color);
     }
@@ -24,7 +24,7 @@ public class TerrainEntity {
         this.color = color;
     }
 
-    private void setCoord(int x , int y){
+    private void setCoord(double x , double y){
         setCoord(new Point(x, y));
     }
 }
