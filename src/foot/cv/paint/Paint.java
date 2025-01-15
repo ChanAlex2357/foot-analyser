@@ -40,7 +40,6 @@ public class Paint {
         for (int i = 0; i < rectangles.rows(); i++) {
             double[] rect = rectangles.get(i, 0);
             try {
-                System.out.println(rect+" : "+rect.length+"["+rect[0]+","+rect[1]+","+rect[2]+"]");
                 Point pt1 = new Point(rect[0], rect[1]);
                 Point pt2 = new Point(rect[2], rect[3]);
                 Imgproc.rectangle(src, pt1, pt2, new Scalar(0, 255, 0), 3);
@@ -57,6 +56,9 @@ public class Paint {
         Edge[] edges = terrain.getSideEdges();
         Point start = null;
         Point end = null;
+        if (player == null) {
+            return;
+        }
         int x_player = player.getX();
         int y_player = player.getY();
         if (terrain.isVertical()) {

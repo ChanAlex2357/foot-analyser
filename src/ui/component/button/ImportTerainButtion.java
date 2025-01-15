@@ -1,4 +1,4 @@
-package ui.components.button;
+package ui.component.button;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;

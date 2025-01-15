@@ -1,4 +1,4 @@
-package ui.components.panel;
+package ui.component.panel;
 import javax.swing.*;
 
 import foot.entity.Terrain;

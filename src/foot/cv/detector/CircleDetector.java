@@ -4,7 +4,7 @@ import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 
 import foot.cv.util.ImageUtils;
-import ui.components.panel.CircleDetectionConfigPanel;
+import ui.component.panel.CircleDetectionConfigPanel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,13 +50,11 @@ public class CircleDetector extends Detector {
     public Mat detect(String imagePath) {
         Mat src = ImageUtils.loadImage(imagePath);
         Mat circles = detect(src);
-        System.out.println("------------------------- // --------------------------------");
         for (int i = 0; i < circles.cols(); i++) {
             double[] circle = circles.get(0, i);
             Point center = new Point(Math.round(circle[0]), Math.round(circle[1]));
             int radius = (int) Math.round(circle[2]);
             Scalar color = new Scalar(src.get((int) center.y, (int) center.x));
-            System.out.println("Circle at (" + center.x + ", " + center.y + ") with radius " + radius + " has color " + color);
         }
         return circles;
     }
@@ -69,13 +67,11 @@ public class CircleDetector extends Detector {
         Imgproc.HoughCircles(gray, circles, Imgproc.HOUGH_GRADIENT, 1,
         (double) gray.rows() / 100, // reduce this value to detect circles that are closer to each other
         50.0, 20.0, getMin_radius(), getMax_radius()); // adjust the thresholds for smaller circles
-        System.out.println("------------------------- // --------------------------------");
         for (int i = 0; i < circles.cols(); i++) {
             double[] circle = circles.get(0, i);
                 Point center = new Point(Math.round(circle[0]), Math.round(circle[1]));
                 int radius = (int) Math.round(circle[2]);
                 Scalar color = new Scalar(src.get((int) center.y, (int) center.x));
-                System.out.println("Circle at (" + center.x + ", " + center.y + ") with radius " + radius + " has color " + color);
             }
         return circles;
     }

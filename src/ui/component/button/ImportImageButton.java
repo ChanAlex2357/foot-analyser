@@ -1,4 +1,4 @@
-package ui.components.button;
+package ui.component.button;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;

@@ -28,7 +28,7 @@ public class RectCv extends Rect implements ImageDraw{
         }
         return points;
     }
-    private String printPoint(Point p , int index){
+    public static String printPoint(Point p , int index){
         return "P"+index+": "+p.x+";"+p.y;
     }
 

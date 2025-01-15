@@ -1,14 +1,10 @@
 package foot.analyser;
 
 import java.util.List;
-import java.awt.Paint;
 import java.util.ArrayList;
 
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
 import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
-
 import foot.cv.RectCv;
 import foot.cv.detector.CircleDetector;
 import foot.cv.detector.RectangleDetector;
@@ -17,7 +13,10 @@ import foot.entity.Ball;
 import foot.entity.Player;
 import foot.entity.Team;
 import foot.entity.Terrain;
-import ui.components.panel.CircleDetectionConfigPanel;
+import ui.color.BluePalette;
+import ui.color.RedPalette;
+import ui.component.panel.CircleDetectionConfigPanel;
+import ui.constant.ScalarConstants;
 
 public class TerrainAnalyser {
     CircleDetector circleDetector;
@@ -50,21 +49,22 @@ public class TerrainAnalyser {
         loadBall();
         loadTeams();
         loadEdges();
-        setGamePhase();
-
     }
     public void loadEdges(){
         getTerrain().dispatchEdges();
     }
     public void loadTerrain() {
-        int max_size = 0;
-        RectCv max = null;
-        for (RectCv rectCv : rectangles) {
-            if (rectCv.area() > max_size) {
-                max = rectCv;
-            }
+        if (rectangles.length <= 2) {
+            return;   
         }
-        this.getTerrain().setRectangle(max);
+        // int max_size = 0;
+        // RectCv max = null;
+        // for (RectCv rectCv : rectangles) {
+            // if (rectCv.area() > max_size) {
+                // max = rectCv;
+            // }
+        // }
+        // this.getTerrain().setRectangle(max);
     }
     public CircleDetector getCircleDetector() {
         return circleDetector;
@@ -99,7 +99,17 @@ public class TerrainAnalyser {
     }
 
     public void paintPlayers(){
-        List<Player> players = getTerrain().getPlayers();
+        Team[ ] teams= getTerrain().getTeams();
+        if (teams == null) {return;}
+        for (Team team : teams) {
+            paintTeam(team);
+            try {
+                team.getTeamEdge().draw(imageSrc);
+            } catch (Exception e) {}
+        }
+    }
+    public void paintTeam(Team team){
+        List<Player> players = team.getPlayers();
         if (players == null || players.size() <= 0) {
             return;
         }
@@ -114,21 +124,21 @@ public class TerrainAnalyser {
     
     public void paintOutlines(){
         // Draw circles on the original image
-        if (circles.cols() > 0) {
-            for (int x = 0; x < circles.cols(); x++) {
-            double[] circle = circles.get(0, x);
-            if (circle == null) break;
-            Point center = new Point(Math.round(circle[0]), Math.round(circle[1]));
-            int radius = (int) Math.round(circle[2]);
-            // Draw the circle center
-            Imgproc.circle(getImageSrc(), center, 3, new Scalar(255, 165, 0), -1);
-            // Draw the circle outline
-            Imgproc.circle(getImageSrc(), center, radius, new Scalar(255, 165, 0), 3);
-            }
-        }
+        // if (circles.cols() > 0) {
+        //     for (int x = 0; x < circles.cols(); x++) {
+        //     double[] circle = circles.get(0, x);
+        //     if (circle == null) break;
+        //     Point center = new Point(Math.round(circle[0]), Math.round(circle[1]));
+        //     int radius = (int) Math.round(circle[2]);
+        //     // Draw the circle center
+        //     Imgproc.circle(getImageSrc(), center, 3, new Scalar(255, 165, 0), -1);
+        //     // Draw the circle outline
+        //     Imgproc.circle(getImageSrc(), center, radius, new Scalar(255, 165, 0), 3);
+        //     }
+        // }
     }
     public void paintTerrain(){
-        // this.getTerrain().draw(imageSrc);
+        this.getTerrain().draw(imageSrc);
     }
     public void paintRectangles(){
         paintTerrain();
@@ -168,7 +178,7 @@ public class TerrainAnalyser {
         for (int i = 0; i < circles.cols(); i++) {
             double[] circle = circles.get(0, i);
             if (circle == null) {
-            continue;
+                continue;
             }
             int centerX = (int) Math.round(circle[0]);
             int centerY = (int) Math.round(circle[1]);
@@ -176,15 +186,15 @@ public class TerrainAnalyser {
 
             // Vérifier que les coordonnées sont valides
             if (centerX >= 0 && centerX < getImageSrc().cols() && centerY >= 0 && centerY < getImageSrc().rows()) {
-            // Get the color at the center of the circle
-            double[] color = getImageSrc().get(centerY, centerX);
-            if (color != null && color[0] == 0 && color[1] == 0 && color[2] == 0) {
-                if (radius < minRadius) {
-                minRadius = radius;
+                // Get the color at the center of the circle
+                double[] color = getImageSrc().get(centerY, centerX);
                 Scalar colorScalar = new Scalar(color);
-                detectedBall = new Ball(centerX, centerY, radius, colorScalar);
+                if (Ball.isBallColor(colorScalar)) {
+                    if (radius < minRadius) {
+                        minRadius = radius;
+                        detectedBall = new Ball(centerX, centerY, radius, colorScalar);
+                    }
                 }
-            }
             }
         }
 
@@ -238,42 +248,87 @@ public class TerrainAnalyser {
     }
 
 
-    public void analyseOffside() {
+    public void analyseOffside() throws Exception {
         Player playerWithBall = getPlayerWithBall();
         if (playerWithBall == null) {return;}
 
         playerWithBall.setBorderColor(new Scalar(10, 0, 128));
         Team attackingTeam = getAttackingTeam();
         Team defendingTeam = getDefendingTeam();
-        if (attackingTeam == null || defendingTeam == null) {System.out.println("NO PHASE");return;}
+
+        if (attackingTeam == null || defendingTeam == null) {
+            throw new Exception("Phase de jeu indeterminer , pas d'attaquant ou defense");
+        }
 
         OffsideAnalyser offsideAnalyser = new OffsideAnalyser();
         offsideAnalyser.analyseOffside(attackingTeam, defendingTeam, playerWithBall);
     }
 
+    // public void loadTeams() throws Exception {
+    //     List<Player> players = loadPlayers();
+    //     if (players.isEmpty()) {
+    //         throw new Exception("Aucun joueur detecter dans l'image");
+    //     }
+
+    //     // Assuming players are divided into two teams based on their colors
+    //     List<Player> team1Players = new ArrayList<>();
+    //     List<Player> team2Players = new ArrayList<>();
+    //     Team team1 = new Team("Team 1", players.get(0).getColor(), team1Players);
+    //     Team team2 = new Team("Team 2", null, team2Players);
+
+    //     for (Player player : players) {
+    //         if (player.getColor().equals(team1.getColor())) {
+    //             team1.addPlayer(player);
+    //         } else {
+    //             if (  team2.getColor() == null) {
+    //                 team2.setColor(player.getColor());
+    //                 team2.addPlayer(player);
+    //             }
+    //             else if (player.getColor().equals(team2.getColor())) {
+    //                 team2.addPlayer(player);
+    //             }
+    //             else {
+    //                 System.out.println("NO TEAM ASIGNED : "+player);
+    //                 player.setBorderColor(ScalarConstants.VIOLET());
+    //             }
+    //         }
+    //     }
+    //     getTerrain().setTeams(new Team[]{team1, team2});
+    //     if (team1.getColor() == null || team2.getColor() == null) {
+    //         throw new Exception("Impossible de distinguer deux quipes , veuillez ajuster les colleurs de votre Mamaan");
+    //     }
+    // }
     public void loadTeams() throws Exception {
         List<Player> players = loadPlayers();
         if (players.isEmpty()) {
             throw new Exception("Aucun joueur detecter dans l'image");
         }
 
-        // Assuming players are divided into two teams based on their colors
-        List<Player> team1Players = new ArrayList<>();
-        List<Player> team2Players = new ArrayList<>();
-        Team team1 = new Team("Team 1", players.get(0).getColor(), team1Players);
-        Team team2 = new Team("Team 2", null, team2Players);
+        // Define color palettes for teams
+        RedPalette redPalette = new RedPalette();
+        BluePalette bluePalette = new BluePalette();
+
+        // Create teams with predefined color palettes
+        Team team1 = new Team("Team 1", ScalarConstants.RED(), new ArrayList<>());
+        team1.setColorPalette(redPalette);
+        Team team2 = new Team("Team 2", ScalarConstants.BLUE(), new ArrayList<>());
+        team2.setColorPalette(bluePalette);
 
         for (Player player : players) {
-            if (player.getColor().equals(team1.getColor())) {
+            if (team1.getColorPalette().contains(player.getColor())) {
                 team1.addPlayer(player);
-            } else {
-                if (team2.getColor() == null) {
-                    team2.setColor(player.getColor());
-                }
+            } else if (team2.getColorPalette().contains(player.getColor())) {
                 team2.addPlayer(player);
+            } else {
+                System.out.println("NO TEAM ASSIGNED: " + player);
+                player.setBorderColor(ScalarConstants.VIOLET());
             }
         }
+
         getTerrain().setTeams(new Team[]{team1, team2});
+        if (team1.getPlayers().isEmpty() || team2.getPlayers().isEmpty()) {
+            throw new Exception("Impossible de distinguer deux équipes, veuillez ajuster les couleurs de votre image.");
+        }
     }
     public RectangleDetector getRectangleDetector() {
         return rectangleDetector;
@@ -308,16 +363,24 @@ public class TerrainAnalyser {
         }
     }
 
-    public void setGamePhase(){
+    /**
+     * Sets the game phase based on the player who currently has the ball.
+     * If no player has the ball, an exception is thrown.
+     * The team color of the player with the ball determines the attacking team.
+     * The team with the matching color is set to attack, while the other team is set to defense.
+     *
+     * @throws Exception if no player has the ball, indicating no game phase.
+     */
+    public void setGamePhase() throws Exception{
         Player playerWithBall = getPlayerWithBall();
         if (playerWithBall == null) {
-            return ;
+            throw new Exception("PAS DE JOUEUR QUI POSSEDE LE BALLON DE JEU");
         }
         // Assuming the team color of the player with the ball determines the attacking team
         Scalar attackingTeamColor = playerWithBall.getColor();
         Team[] teams = getTerrain().getTeams();
         for (Team team : teams) {
-            if (team.getColor().equals(attackingTeamColor)) {
+            if (team.getColor() != null && team.getColor().equals(attackingTeamColor)) {
                 team.setToAttack();
             }
             else {
@@ -326,7 +389,8 @@ public class TerrainAnalyser {
         }
     }
 
-    public void analyse(){
+    public void analyse() throws Exception{
+        setGamePhase();
         analyseOffside();
     }
 }

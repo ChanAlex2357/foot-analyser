@@ -6,26 +6,30 @@ import org.opencv.core.Scalar;
 
 import foot.comparator.SortByDistanceOnEdge;
 import foot.cv.Edge;
+import ui.color.ColorPalette;
 
 public class Team {
-    public static final String PHASE_ATTACK ="Attack";
-    public static final String PHASE_DEFENSE ="Defense";
-    public static final String PHASE_UNDEFINED ="Undefined";
+    public static final String PHASE_ATTACK = "Attack";
+    public static final String PHASE_DEFENSE = "Defense";
+    public static final String PHASE_UNDEFINED = "Undefined";
     public static final char Y_AXIS = 'Y';
     public static final char X_AXIS = 'X';
+
     char axis = Y_AXIS;
     Scalar color;
+    ColorPalette colorPalette;
     List<Player> players;
     Player goal;
     private String name;
     Edge teamEdge;
     private String phase = PHASE_UNDEFINED;
 
-    public Team(Scalar color){
-        this(color,null);
+    public Team(Scalar color) {
+        this(color, null);
     }
 
-    public Team(Scalar color , List<Player> players){
+    public Team(Scalar color, List<Player> players) {
+        this.colorPalette = new ColorPalette();
         setColor(color);
         setPlayers(players);
     }
@@ -45,15 +49,25 @@ public class Team {
 
     public void setColor(Scalar color) {
         this.color = color;
+        this.colorPalette.addColor(color);
+    }
+
+    public ColorPalette getColorPalette() {
+        return colorPalette;
+    }
+
+    public void setColorPalette(ColorPalette colorPalette) {
+        this.colorPalette = colorPalette;
     }
 
     public List<Player> getPlayers() {
         return players;
     }
 
-    public void addPlayer(Player player){
+    public void addPlayer(Player player) {
         getPlayers().add(player);
         player.setTeam(this);
+        player.setColorPalette(colorPalette);
     }
 
     public void setPlayers(List<Player> players) {
@@ -74,7 +88,7 @@ public class Team {
 
     public void setGoal(Player goal) {
         this.goal = goal;
-        this.goal.setBorderColor( new Scalar(50,50,50));
+        this.goal.setBorderColor(new Scalar(100, 100, 100));
     }
 
     public Edge getTeamEdge() {
@@ -104,19 +118,20 @@ public class Team {
     public void setPhase(String phase) {
         this.phase = phase;
     }
-    public void setToAttack(){
+
+    public void setToAttack() {
         setPhase(getPHASE_ATTACK());
     }
 
-    public void setToDefense(){
+    public void setToDefense() {
         setPhase(getPHASE_DEFENSE());
     }
 
-    public void sortPlayersOnTeamEdge(){
-        getPlayers().sort( new SortByDistanceOnEdge(getTeamEdge()));
+    public void sortPlayersOnTeamEdge() {
+        getPlayers().sort(new SortByDistanceOnEdge(getTeamEdge()));
     }
 
-    public Player getDefender(){
+    public Player getDefender() {
         sortPlayersOnTeamEdge();
         for (Player player : players) {
             if (player.equals(getGoal())) {
@@ -154,5 +169,4 @@ public class Team {
     public void setAxis(char axis) {
         this.axis = axis;
     }
-
 }

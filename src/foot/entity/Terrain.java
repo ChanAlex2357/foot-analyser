@@ -25,10 +25,11 @@ public class Terrain extends TerrainEntity{
 
     public Terrain(ImageIcon imageIcon, Dimension panelSize) {
         super(0, 0, null);
+        
         this.size = new Dimension(imageIcon.getIconWidth(), imageIcon.getIconHeight());
         this.isVertical = size.height > size.width;
         this.image = imageIcon.getImage();
-        this.setRectangle(new RectCv(PointUtils.createRectPoints(0, 0, panelSize.getWidth(), panelSize.getHeight())));
+        this.setRectangle(new RectCv(PointUtils.createRectPoints(0, 0, imageIcon.getIconWidth(), imageIcon.getIconHeight())));
     }
 
     public Dimension getSize() {
@@ -125,7 +126,6 @@ public class Terrain extends TerrainEntity{
         if (isVertical) {
             edges[0] = getRectangle().getTopEdge();
             edges[1] = getRectangle().getBottomEdge();
-            System.out.println("VERTICAL");
         }
         else {
             edges[0] = getRectangle().getLeftEdge();
@@ -166,14 +166,23 @@ public class Terrain extends TerrainEntity{
         getPlayers().sort( new SortByDistanceOnEdge(edge,isVertical));
     }
 
+    private void dispatchEdge(Edge edge ) 
+    {
+        sortPlayersByEdge(edge);
+        for (Player player : getPlayers()) {
+            Team team = player.getTeam();
+            if (team != null && team.getTeamEdge() == null) {
+                team.setTeamEdge(edge);
+                player.setGoal();
+                break;
+            }
+        }
+
+    }
     public void dispatchEdges(){
         Edge[] edges = getGoalEdges();
-        sortPlayersByEdge(edges[0]);
-        Player p_close = getPlayers().get(0);
-        Player p_far = getPlayers().get(getPlayers().size()-1);
-        p_close.getTeam().setTeamEdge(edges[0]);
-        p_close.setGoal();
-        p_far.getTeam().setTeamEdge(edges[1]);
-        p_far.setGoal();
+        for (Edge edge : edges) {
+            dispatchEdge(edge);
+        }
     }
 }

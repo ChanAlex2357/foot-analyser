@@ -14,12 +14,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import foot.entity.Terrain;
-import ui.components.button.CheckButton;
-import ui.components.button.ImportImageButton;
-import ui.components.button.ImportTerainButtion;
-import ui.components.panel.CircleDetectionConfigPanel;
-import ui.components.panel.TerrainPanel;
-import ui.foot.TerrainUI;
+import ui.component.button.CheckButton;
+import ui.component.button.ImportImageButton;
+import ui.component.button.ImportTerainButtion;
+import ui.component.panel.CircleDetectionConfigPanel;
+import ui.component.panel.TerrainPanel;
 
 public class FootAnalyserFrame extends JFrame {
     private JLabel imageLabel;
@@ -38,18 +37,7 @@ public class FootAnalyserFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         // Image panel
-        imageLabel = new JLabel() {
-            @Override
-            protected void paintComponent(java.awt.Graphics g) {
-                super.paintComponent(g);
-                // if (getIcon() != null) {
-                //     Image image = ((ImageIcon) getIcon()).getImage();
-                //     int width = (int) (image.getWidth(null) * zoomFactor);
-                //     int height = (int) (image.getHeight(null) * zoomFactor);
-                //     g.drawImage(image, 0, 0, width, height, null);
-                // }
-            }
-        };
+        imageLabel = new JLabel();
         imageLabel.setHorizontalAlignment(JLabel.CENTER);
         JScrollPane imageScrollPane = new JScrollPane(imageLabel);
         add(imageScrollPane, BorderLayout.CENTER);

@@ -11,14 +11,20 @@ import foot.analyser.OffsideState;
 import foot.cv.Edge;
 import foot.cv.paint.Paint;
 import foot.utils.MathUtils;
+import ui.color.ColorPalette;
 import ui.constant.ScalarConstants;
+
 public class Player  extends CircleEntitty{
     Team team;
     OffsideState offsideState = OffsideState.OutGame();
+    ColorPalette colorPalette;
+
     public Player(int x , int y , int radius , Scalar color,Team team) {
         super(x, y, radius,color);
         setBorderColor(new Scalar(new  double[]{0,0,0}));
         setTeam(team);
+        this.colorPalette = new ColorPalette();
+        this.colorPalette.addColor(color);
     }
 
     @Override
@@ -34,6 +40,15 @@ public class Player  extends CircleEntitty{
     public void setTeam(Team team) {
         this.team = team;
     }
+
+    public ColorPalette getColorPalette() {
+        return colorPalette;
+    }
+
+    public void setColorPalette(ColorPalette colorPalette) {
+        this.colorPalette = colorPalette;
+    }
+
     public double calculerDistanceFromEdge(Edge edge,boolean isVertical) {
         Point edgePoint = edge.getStartPoint();
         double distance = 0 ;
@@ -63,6 +78,10 @@ public class Player  extends CircleEntitty{
     @Override
     public void draw(Mat src, Paint painter) {
         super.draw(src, painter);
-        Imgproc.putText(src, getOffsideState().getState(), getCoord(), Font.PLAIN,0.5,ScalarConstants.WHITE(),1);
+        String text = getOffsideState().getState();
+        if (text == null || text.equals("")) {
+            text = getTeam().getName();
+        }
+        Imgproc.putText(src,text, getCoord(), Font.PLAIN,0.5,ScalarConstants.WHITE(),1);
     }
 }

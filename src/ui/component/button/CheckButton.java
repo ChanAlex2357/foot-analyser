@@ -1,4 +1,4 @@
-package ui.components.button;
+package ui.component.button;
 
 import java.awt.event.ActionEvent;
 
@@ -6,11 +6,11 @@ import javax.swing.JFrame;
 
 import org.opencv.core.Mat;
 
+import ui.component.panel.CircleDetectionConfigPanel;
 import ui.frame.FootAnalyserFrame;
 import foot.analyser.TerrainAnalyser;
 import foot.entity.Terrain;
 import foot.utils.MatUtils;
-import ui.components.panel.CircleDetectionConfigPanel;
 
 public class CheckButton extends ActionButton {
 
