@@ -1,10 +1,12 @@
 package ui.components.button;
 
 import java.awt.event.ActionEvent;
+
+import javax.swing.JFrame;
+
 import org.opencv.core.Mat;
 
 import ui.frame.FootAnalyserFrame;
-import ui.frame.ImageFrame;
 import foot.analyser.TerrainAnalyser;
 import foot.entity.Terrain;
 import foot.utils.MatUtils;
@@ -24,13 +26,22 @@ public class CheckButton extends ActionButton {
     public void actionPerformed(ActionEvent e) {
         Terrain terrain = footAnalyserFrame.getTerrain();
         if (terrain != null) {
+            
             CircleDetectionConfigPanel configPanel = footAnalyserFrame.getConfigPanel();
-            TerrainAnalyser terrainAnalyser = new TerrainAnalyser(terrain, configPanel);
-            terrainAnalyser.loadOffside();
+            TerrainAnalyser terrainAnalyser = new TerrainAnalyser(terrain, configPanel);    
+            try {
+                terrainAnalyser.build();
+                terrainAnalyser.analyse();
+                
+            } catch (Exception ex) {
+                javax.swing.JOptionPane.showMessageDialog(null, "An error occurred: " + ex.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            }
             terrainAnalyser.paint();
             Mat src = terrainAnalyser.getImageSrc();
-            ImageFrame imageFrame = new ImageFrame(MatUtils.Mat2BufferedImage(src));
-            imageFrame.setVisible(true);
+            // ImageFrame imageFrame = new ImageFrame(MatUtils.Mat2BufferedImage(src));
+            // imageFrame.setVisible(true);
+            footAnalyserFrame.updateImage( MatUtils.Mat2BufferedImage(src));
+            footAnalyserFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         }
     }
 

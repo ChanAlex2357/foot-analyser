@@ -11,6 +11,10 @@ public class SortByDistanceOnEdge implements Comparator<Player> {
     public SortByDistanceOnEdge(Edge edge){
         setEdge(edge);
     }
+    public SortByDistanceOnEdge(Edge edge,boolean isVertical){
+        this(edge);
+        this.isVertical = isVertical;
+    }
 
     @Override
     public int compare(Player p1, Player p2) {

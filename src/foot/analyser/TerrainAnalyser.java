@@ -1,12 +1,14 @@
 package foot.analyser;
 
 import java.util.List;
+import java.awt.Paint;
 import java.util.ArrayList;
 
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 
-import foot.cv.Edge;
 import foot.cv.RectCv;
 import foot.cv.detector.CircleDetector;
 import foot.cv.detector.RectangleDetector;
@@ -30,6 +32,9 @@ public class TerrainAnalyser {
         setImageSrc( ImageUtils.loadImage(getTerrain().getImagePath()));
         setDetectors(configPanel);
         loadShapes();
+    }
+    
+    public void build() throws Exception{
         loadEntities();
     }
     private void setDetectors(CircleDetectionConfigPanel configPanel){
@@ -40,11 +45,13 @@ public class TerrainAnalyser {
         setCircles(getCircleDetector().detect(getImageSrc()));
         setRectangles(getRectangleDetector());
     }
-    public void loadEntities(){
+    public void loadEntities() throws Exception{
+        loadTerrain();
         loadBall();
         loadTeams();
-        loadTerrain();
         loadEdges();
+        setGamePhase();
+
     }
     public void loadEdges(){
         getTerrain().dispatchEdges();
@@ -93,7 +100,7 @@ public class TerrainAnalyser {
 
     public void paintPlayers(){
         List<Player> players = getTerrain().getPlayers();
-        if (players.size() <= 0) {
+        if (players == null || players.size() <= 0) {
             return;
         }
         for (Player player : players) {
@@ -103,6 +110,22 @@ public class TerrainAnalyser {
     public void paintCircles(){
         paintPlayers();
         paintBall();
+    }
+    
+    public void paintOutlines(){
+        // Draw circles on the original image
+        if (circles.cols() > 0) {
+            for (int x = 0; x < circles.cols(); x++) {
+            double[] circle = circles.get(0, x);
+            if (circle == null) break;
+            Point center = new Point(Math.round(circle[0]), Math.round(circle[1]));
+            int radius = (int) Math.round(circle[2]);
+            // Draw the circle center
+            Imgproc.circle(getImageSrc(), center, 3, new Scalar(255, 165, 0), -1);
+            // Draw the circle outline
+            Imgproc.circle(getImageSrc(), center, radius, new Scalar(255, 165, 0), 3);
+            }
+        }
     }
     public void paintTerrain(){
         // this.getTerrain().draw(imageSrc);
@@ -135,14 +158,17 @@ public class TerrainAnalyser {
         }
         getTerrain().setPlayers(players);
         return players;
-    }
+        }
 
-    public Ball loadBall() {
+    public Ball loadBall() throws Exception {
         Mat circles = getCircles();
+        Ball detectedBall = null;
+        double minRadius = Double.MAX_VALUE;
+
         for (int i = 0; i < circles.cols(); i++) {
             double[] circle = circles.get(0, i);
             if (circle == null) {
-                continue;
+            continue;
             }
             int centerX = (int) Math.round(circle[0]);
             int centerY = (int) Math.round(circle[1]);
@@ -150,21 +176,27 @@ public class TerrainAnalyser {
 
             // Vérifier que les coordonnées sont valides
             if (centerX >= 0 && centerX < getImageSrc().cols() && centerY >= 0 && centerY < getImageSrc().rows()) {
-                // Get the color at the center of the circle
-                double[] color = getImageSrc().get(centerY, centerX);
-                if (color != null && color[0] == 0 && color[1] == 0 && color[2] == 0) {
-                    Scalar colorScalar = new Scalar(color);
-                    getTerrain().setBall(
-                        new Ball(centerX, centerY, radius, colorScalar)
-                    );
-                    return getTerrain().getBall();
+            // Get the color at the center of the circle
+            double[] color = getImageSrc().get(centerY, centerX);
+            if (color != null && color[0] == 0 && color[1] == 0 && color[2] == 0) {
+                if (radius < minRadius) {
+                minRadius = radius;
+                Scalar colorScalar = new Scalar(color);
+                detectedBall = new Ball(centerX, centerY, radius, colorScalar);
                 }
             }
+            }
         }
-        return null; // No black circle found
+
+        if (detectedBall != null) {
+            getTerrain().setBall(detectedBall);
+            return getTerrain().getBall();
+        }
+
+        throw new Exception("Aucun ballon noir n'a ete trouver sur le terrain");
     }
 
-    public Player getPlayerWithBall() {
+        public Player getPlayerWithBall() {
         Ball ball = getTerrain().getBall();
         if (ball == null) {
             return null;
@@ -184,80 +216,45 @@ public class TerrainAnalyser {
         return playerWithBall;
     }
 
-    public String getAttackingTeam() {
-        Player playerWithBall = getPlayerWithBall();
-        if (playerWithBall == null) {
-            return "Unknown";
+    public Team getAttackingTeam() {
+        for (Team team : getTerrain().getTeams()) {
+            if (team.getPhase().equals(Team.getPHASE_ATTACK())) {
+                return team;
+            }
         }
-
-        // Assuming the team color of the player with the ball determines the attacking team
-        Scalar attackingTeamColor = playerWithBall.getColor();
+        return null;
+    }
+    public Team getDefendingTeam() {
         Team[] teams = getTerrain().getTeams();
+        if (teams == null) {
+            return null;
+        }
         for (Team team : teams) {
-            if (team.getColor().equals(attackingTeamColor)) {
-                return "Attacking Team: " + team.getName();
+            if (team.getPhase().equals(Team.getPHASE_DEFENSE())) {
+                return team;
             }
         }
-
-        return "Unknown";
+        return null;
     }
 
 
-    public void loadOffside(){
-        List<Player> players = getOffsidePlayers();
-        System.out.println("OFFSIDE : "+players.size());
-        for (Player player : players) {
-            player.setBorderColor(new Scalar(128, 0, 128)); // Violet color
-        }
-    }
-
-    public List<Player> getOffsidePlayers() {
+    public void analyseOffside() {
         Player playerWithBall = getPlayerWithBall();
-        if (playerWithBall == null) {
-            return new ArrayList<>();
-        }
-        System.out.println("Player with ball : "+playerWithBall);
-        playerWithBall.setBorderColor(new Scalar(128, 0, 128));
-        Scalar attackingTeamColor = playerWithBall.getColor();
-        Team[] teams = getTerrain().getTeams();
-        Team attackingTeam = null;
-        Team defendingTeam = null;
+        if (playerWithBall == null) {return;}
 
-        for (Team team : teams) {
-            if (team.getColor().equals(attackingTeamColor)) {
-                attackingTeam = team;
-            } else {
-                defendingTeam = team;
-            }
-        }
+        playerWithBall.setBorderColor(new Scalar(10, 0, 128));
+        Team attackingTeam = getAttackingTeam();
+        Team defendingTeam = getDefendingTeam();
+        if (attackingTeam == null || defendingTeam == null) {System.out.println("NO PHASE");return;}
 
-        if (attackingTeam == null || defendingTeam == null) {
-            return new ArrayList<>();
-        }
-
-        // Déterminer la position du dernier défenseur
-        int lastDefenderY = Integer.MAX_VALUE;
-        for (Player defender : defendingTeam.getPlayers()) {
-            if (defender.getY() < lastDefenderY) {
-                lastDefenderY = defender.getY();
-            }
-        }
-
-        // Trouver les joueurs attaquants qui sont hors-jeu
-        List<Player> offsidePlayers = new ArrayList<>();
-        for (Player attacker : attackingTeam.getPlayers()) {
-            if (attacker.getY() < lastDefenderY) {
-                offsidePlayers.add(attacker);
-            }
-        }
-
-        return offsidePlayers;
+        OffsideAnalyser offsideAnalyser = new OffsideAnalyser();
+        offsideAnalyser.analyseOffside(attackingTeam, defendingTeam, playerWithBall);
     }
 
-    public void loadTeams() {
+    public void loadTeams() throws Exception {
         List<Player> players = loadPlayers();
         if (players.isEmpty()) {
-            return;
+            throw new Exception("Aucun joueur detecter dans l'image");
         }
 
         // Assuming players are divided into two teams based on their colors
@@ -296,7 +293,40 @@ public class TerrainAnalyser {
     }
 
     public void paint(){
+        paintOutlines();
         paintCircles();
         paintRectangles();
+        paintOffSideLine();
+    }
+
+    private void paintOffSideLine() {
+        Team defenderTeam = getDefendingTeam();
+        if (defenderTeam != null) {
+            Player defender  = defenderTeam.getDefender();
+            foot.cv.paint.Paint paint = new foot.cv.paint.Paint();
+            paint.paintRepere(imageSrc, defender, terrain);
+        }
+    }
+
+    public void setGamePhase(){
+        Player playerWithBall = getPlayerWithBall();
+        if (playerWithBall == null) {
+            return ;
+        }
+        // Assuming the team color of the player with the ball determines the attacking team
+        Scalar attackingTeamColor = playerWithBall.getColor();
+        Team[] teams = getTerrain().getTeams();
+        for (Team team : teams) {
+            if (team.getColor().equals(attackingTeamColor)) {
+                team.setToAttack();
+            }
+            else {
+                team.setToDefense();
+            }
+        }
+    }
+
+    public void analyse(){
+        analyseOffside();
     }
 }

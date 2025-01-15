@@ -24,7 +24,7 @@ public class TerrainUI implements DrawableComponent{
     }
     @Override
     public void draw(Graphics g) {
-        g.drawImage(this.getImage(), (int)getCoordonnee().getX(), (int)getCoordonnee().getY(), null);
+        // g.drawImage(this.getImage(), (int)getCoordonnee().getX(), (int)getCoordonnee().getY(), null);
     }
 
     public void setTerrain(Terrain terrain) {

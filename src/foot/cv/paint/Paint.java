@@ -10,6 +10,9 @@ import org.opencv.imgproc.Imgproc;
 
 import foot.cv.Edge;
 import foot.cv.RectCv;
+import foot.entity.Player;
+import foot.entity.Terrain;
+import ui.constant.ScalarConstants;
 
 public class Paint {
     public void paintCircle(Mat src , Point center , int radius , Scalar color){
@@ -48,5 +51,43 @@ public class Paint {
 
     public void paintEdge(Mat src,Edge edge){
         Imgproc.line(src, edge.getStartPoint(), edge.getEndPoint(), edge.getColor(),3);
+    }
+
+    public void paintRepere(Mat src ,Player player , Terrain terrain){
+        Edge[] edges = terrain.getSideEdges();
+        Point start = null;
+        Point end = null;
+        int x_player = player.getX();
+        int y_player = player.getY();
+        if (terrain.isVertical()) {
+            int x = terrain.getX();
+            int max_x = terrain.getMaxX();
+            try {
+            if (edges[0] != null) {
+                x = (int) edges[0].getStartPoint().x;
+            }
+            if (edges[1] != null ) {
+                max_x = (int) edges[1].getStartPoint().x;                    
+            }
+            } catch (Exception e) {  System.out.println("NO SIDE EDGES");}
+
+            end = new Point(max_x, y_player);
+            start = new Point(x, y_player);
+        } else {
+            int y = terrain.getY();
+            int max_y = terrain.getMaxY();
+            try {
+            if (edges[0] != null) {
+                y = (int) edges[0].getStartPoint().y;
+            }
+            if (edges[1] != null) {
+                max_y = (int) edges[1].getStartPoint().y;
+            }
+            } catch (Exception e) { System.out.println("NO SIDE EDGES"); }
+
+            end = new Point(x_player, max_y);
+            start = new Point(x_player, y);
+        }
+        Imgproc.line(src, start, end, ScalarConstants.VIOLET());
     }
 }

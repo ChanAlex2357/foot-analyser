@@ -9,14 +9,39 @@ import ui.components.panel.CircleDetectionConfigPanel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CircleDetector extends Detector{
+/**
+ * The CircleDetector class is responsible for detecting circles in an image using the Hough Circle Transform.
+ * It extends the Detector class and utilizes OpenCV for image processing.
+ * 
+ * <p>This class provides methods to detect circles in an image and print the color of each detected circle.
+ * The detection parameters such as minimum and maximum radius can be configured through a CircleDetectionConfigPanel.</p>
+ * 
+ * <p>Usage example:</p>
+ * <pre>
+ * {@code
+ * CircleDetectionConfigPanel configPanel = new CircleDetectionConfigPanel();
+ * CircleDetector detector = new CircleDetector(configPanel);
+ * Mat result = detector.detect("path/to/image.jpg");
+ * }
+ * </pre>
+ * 
+ * <p>Note: Ensure that the OpenCV native library is loaded before using this class.</p>
+ * 
+ * @see Detector
+ * @see CircleDetectionConfigPanel
+ * @see ImageUtils
+ * @see org.opencv.core.Mat
+ * @see org.opencv.core.Point
+ * @see org.opencv.core.Scalar
+ * @see org.opencv.imgproc.Imgproc
+ */
+public class CircleDetector extends Detector {
     int min_radius;
     int max_radius;
     static {
-        System.loadLibrary(
-            Core.NATIVE_LIBRARY_NAME
-        );
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
     }
+
     public CircleDetector(CircleDetectionConfigPanel configPanel) {
         setMax_radius(configPanel.getMaxRadius());
         setMin_radius(configPanel.getMinRadius());
@@ -24,30 +49,35 @@ public class CircleDetector extends Detector{
 
     public Mat detect(String imagePath) {
         Mat src = ImageUtils.loadImage(imagePath);
-        return detect(src);
-        
+        Mat circles = detect(src);
+        System.out.println("------------------------- // --------------------------------");
+        for (int i = 0; i < circles.cols(); i++) {
+            double[] circle = circles.get(0, i);
+            Point center = new Point(Math.round(circle[0]), Math.round(circle[1]));
+            int radius = (int) Math.round(circle[2]);
+            Scalar color = new Scalar(src.get((int) center.y, (int) center.x));
+            System.out.println("Circle at (" + center.x + ", " + center.y + ") with radius " + radius + " has color " + color);
+        }
+        return circles;
     }
-
+    
     public Mat detect(Mat src) {
         Mat gray = new Mat();
         Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
         Imgproc.medianBlur(gray, gray, 5);
         Mat circles = new Mat();
-        Imgproc.HoughCircles(gray, circles, Imgproc.HOUGH_GRADIENT, 1.0,
-                (double)gray.rows()/16, // change this value to detect circles with different distances to each other
-                100.0, 30.0, getMin_radius(), getMax_radius()); // change the last two parameters
-        // (min_radius & max_radius) to detect larger circles
+        Imgproc.HoughCircles(gray, circles, Imgproc.HOUGH_GRADIENT, 1,
+        (double) gray.rows() / 100, // reduce this value to detect circles that are closer to each other
+        50.0, 20.0, getMin_radius(), getMax_radius()); // adjust the thresholds for smaller circles
+        System.out.println("------------------------- // --------------------------------");
+        for (int i = 0; i < circles.cols(); i++) {
+            double[] circle = circles.get(0, i);
+                Point center = new Point(Math.round(circle[0]), Math.round(circle[1]));
+                int radius = (int) Math.round(circle[2]);
+                Scalar color = new Scalar(src.get((int) center.y, (int) center.x));
+                System.out.println("Circle at (" + center.x + ", " + center.y + ") with radius " + radius + " has color " + color);
+            }
         return circles;
-    }
-
-    List<Mat> circleList = new ArrayList<>();
-
-    public List<Mat> getCircleList() {
-        return circleList;
-    }
-
-    public void setCircleList(List<Mat> circleList) {
-        this.circleList = circleList;
     }
 
     public int getMin_radius() {

@@ -1,18 +1,17 @@
 package foot.entity;
 import java.awt.Dimension;
 import java.awt.Image;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.*;
 
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
 
 import foot.comparator.SortByDistanceOnEdge;
 import foot.cv.Edge;
 import foot.cv.RectCv;
 import foot.cv.paint.Paint;
+import foot.utils.PointUtils;
 
 public class Terrain extends TerrainEntity{
     private Image image;
@@ -28,7 +27,8 @@ public class Terrain extends TerrainEntity{
         super(0, 0, null);
         this.size = new Dimension(imageIcon.getIconWidth(), imageIcon.getIconHeight());
         this.isVertical = size.height > size.width;
-        this.image = imageIcon.getImage().getScaledInstance(panelSize.width, panelSize.height, Image.SCALE_SMOOTH);
+        this.image = imageIcon.getImage();
+        this.setRectangle(new RectCv(PointUtils.createRectPoints(0, 0, panelSize.getWidth(), panelSize.getHeight())));
     }
 
     public Dimension getSize() {
@@ -85,6 +85,14 @@ public class Terrain extends TerrainEntity{
 
     public void setTeams(Team[] teams) {
         this.teams = teams;
+        for (Team team : teams) {
+            if (isVertical) {
+                team.axis = Team.Y_AXIS;
+            }
+            else{
+                team.axis = Team.X_AXIS;
+            }
+        }
     }
 
     @Override
@@ -105,6 +113,9 @@ public class Terrain extends TerrainEntity{
     }
 
     public void setRectangle(RectCv rectangle) {
+        if (rectangle ==  null) {
+            return;
+        }
         this.rectangle = rectangle;
     }
 
@@ -114,6 +125,7 @@ public class Terrain extends TerrainEntity{
         if (isVertical) {
             edges[0] = getRectangle().getTopEdge();
             edges[1] = getRectangle().getBottomEdge();
+            System.out.println("VERTICAL");
         }
         else {
             edges[0] = getRectangle().getLeftEdge();
@@ -151,7 +163,7 @@ public class Terrain extends TerrainEntity{
     }
 
     public void sortPlayersByEdge(Edge edge ){
-        getPlayers().sort( new SortByDistanceOnEdge(edge));
+        getPlayers().sort( new SortByDistanceOnEdge(edge,isVertical));
     }
 
     public void dispatchEdges(){
