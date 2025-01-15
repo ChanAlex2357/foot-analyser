@@ -4,11 +4,14 @@ import java.util.List;
 
 import org.opencv.core.Scalar;
 
+import foot.cv.Edge;
+
 public class Team {
     Scalar color;
     List<Player> players;
     Player goal;
     private String name;
+    Edge teamEdge;
 
     public Team(Scalar color){
         this(color,null);
@@ -55,5 +58,22 @@ public class Team {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Player getGoal() {
+        return goal;
+    }
+
+    public void setGoal(Player goal) {
+        this.goal = goal;
+        this.goal.setBorderColor( new Scalar(50,50,50));
+    }
+
+    public Edge getTeamEdge() {
+        return teamEdge;
+    }
+
+    public void setTeamEdge(Edge edge) {
+        this.teamEdge = edge;
     }
 }

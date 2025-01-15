@@ -47,7 +47,7 @@ public class TerrainAnalyser {
         loadEdges();
     }
     public void loadEdges(){
-        Edge[] edges = getTerrain().getGoalEdges();
+        getTerrain().dispatchEdges();
     }
     public void loadTerrain() {
         int max_size = 0;
@@ -92,8 +92,8 @@ public class TerrainAnalyser {
     }
 
     public void paintPlayers(){
-        Player[] players = getTerrain().getPlayers();
-        if (players.length <= 0) {
+        List<Player> players = getTerrain().getPlayers();
+        if (players.size() <= 0) {
             return;
         }
         for (Player player : players) {
@@ -133,7 +133,7 @@ public class TerrainAnalyser {
                 players.add(newPlayer);
             }
         }
-        getTerrain().setPlayers(players.toArray(new Player[0]));
+        getTerrain().setPlayers(players);
         return players;
     }
 
@@ -170,7 +170,7 @@ public class TerrainAnalyser {
             return null;
         }
 
-        Player[] players = getTerrain().getPlayers();
+        List<Player> players = getTerrain().getPlayers();
         Player playerWithBall = null;
         double minDistance = Double.MAX_VALUE;
 
@@ -268,13 +268,12 @@ public class TerrainAnalyser {
 
         for (Player player : players) {
             if (player.getColor().equals(team1.getColor())) {
-                team1Players.add(player);
-                player.setTeam(null);
+                team1.addPlayer(player);
             } else {
                 if (team2.getColor() == null) {
                     team2.setColor(player.getColor());
                 }
-                team2Players.add(player);
+                team2.addPlayer(player);
             }
         }
         getTerrain().setTeams(new Team[]{team1, team2});

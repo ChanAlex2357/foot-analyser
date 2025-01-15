@@ -1,4 +1,4 @@
-package foot.util;
+package foot.utils;
 
 import org.opencv.core.Point;
 

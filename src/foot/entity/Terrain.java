@@ -1,12 +1,15 @@
 package foot.entity;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.*;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 
+import foot.comparator.SortByDistanceOnEdge;
 import foot.cv.Edge;
 import foot.cv.RectCv;
 import foot.cv.paint.Paint;
@@ -17,7 +20,7 @@ public class Terrain extends TerrainEntity{
     private boolean isVertical;
     private String imagePath;
     private RectCv rectangle;
-    private Player[] players;
+    private List<Player> players;
     private Ball ball;
     private Team[] teams;
 
@@ -60,11 +63,11 @@ public class Terrain extends TerrainEntity{
         this.imagePath = imagePath;
     }
 
-    public Player[] getPlayers() {
+    public List<Player> getPlayers() {
         return players;
     }
 
-    public void setPlayers(Player[] players) {
+    public void setPlayers(List<Player> players) {
         this.players = players;
     }
 
@@ -137,37 +140,28 @@ public class Terrain extends TerrainEntity{
     public void draw(Mat src, Paint painter) {
         painter.paintRectangles(src, rectangle);
     }
-
-    public double calcDistance(double a, double b){
-        return Math.abs(a-b);
-    }
     public double calcDistance(Player player , Edge edge){
-        Point edgePoint = edge.getStartPoint();
-        double distance = 0 ;
-        if (isVertical) {
-            double y_ref = edgePoint.y;
-            distance = Math.abs( y_ref - player.getY());
-        }
-        else {
-            double x_ref = edgePoint.x;
-            distance = calcDistance(x_ref,player.getX());
-        }
-        return distance;
+        return player.calculerDistanceFromEdge(edge,isVertical);
     }
-    public Player findClosestPlayer(Edge edge , Player[] players){
+    public Player findPlayerCloseToEdge(Edge edge){
         Player closest = null;
-        double closeDistance = Integer.MAX_VALUE;
-        for (Player player : players) {
-            double calc_distance = calcDistance(player, edge);
-            if (closest == null || closeDistance > calc_distance) {
-                closest = player;
-                closeDistance = calc_distance;
-            }
-        }
+        sortPlayersByEdge(edge);
+        closest = getPlayers().get(0);
         return closest;
     }
 
+    public void sortPlayersByEdge(Edge edge ){
+        getPlayers().sort( new SortByDistanceOnEdge(edge));
+    }
+
     public void dispatchEdges(){
-        
+        Edge[] edges = getGoalEdges();
+        sortPlayersByEdge(edges[0]);
+        Player p_close = getPlayers().get(0);
+        Player p_far = getPlayers().get(getPlayers().size()-1);
+        p_close.getTeam().setTeamEdge(edges[0]);
+        p_close.setGoal();
+        p_far.getTeam().setTeamEdge(edges[1]);
+        p_far.setGoal();
     }
 }

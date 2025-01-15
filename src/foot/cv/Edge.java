@@ -38,4 +38,5 @@ public class Edge implements ImageDraw{
     public void draw(Mat src,Paint paint) {
         paint.paintEdge(src,this);
     }
+
 }
