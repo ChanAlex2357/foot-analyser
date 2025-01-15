@@ -22,12 +22,11 @@ public class CircleEntitty extends TerrainEntity{
     }
 
     @Override
-    public void draw(Mat src){
-        Paint p = new Paint();
+    public void draw(Mat src, Paint painter) {
         Scalar c = borderColor;
         if (c == null) {
             c = new Scalar(50, 50, 50);
         }
-        p.paintCircle(src, coord, (int) getRadius(), c);
+        painter.paintCircle(src, coord, (int) getRadius(), c);
     }
 }

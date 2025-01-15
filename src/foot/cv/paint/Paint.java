@@ -8,6 +8,7 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
+import foot.cv.Edge;
 import foot.cv.RectCv;
 
 public class Paint {
@@ -45,7 +46,7 @@ public class Paint {
         }
     }
 
-    public void paintEdge(Mat src){
-        Imgproc.line(src, null, null, null);
+    public void paintEdge(Mat src,Edge edge){
+        Imgproc.line(src, edge.getStartPoint(), edge.getEndPoint(), edge.getColor(),3);
     }
 }

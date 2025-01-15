@@ -1,10 +1,13 @@
 package foot.cv;
 
-import java.awt.Point;
-
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 
-public class Edge {
+import foot.cv.paint.Paint;
+import interfaces.ImageDraw;
+
+public class Edge implements ImageDraw{
     Point startPoint;
     Point endPoint;
     Scalar color;
@@ -30,5 +33,9 @@ public class Edge {
     }
     public void setColor(Scalar color) {
         this.color = color;
+    }
+    @Override
+    public void draw(Mat src,Paint paint) {
+        paint.paintEdge(src,this);
     }
 }

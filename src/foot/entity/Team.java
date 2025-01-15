@@ -1,10 +1,12 @@
 package foot.entity;
 
+import java.util.List;
+
 import org.opencv.core.Scalar;
 
 public class Team {
     Scalar color;
-    Player[] players;
+    List<Player> players;
     Player goal;
     private String name;
 
@@ -12,7 +14,7 @@ public class Team {
         this(color,null);
     }
 
-    public Team(Scalar color , Player[] players){
+    public Team(Scalar color , List<Player> players){
         setColor(color);
         setPlayers(players);
     }
@@ -21,10 +23,9 @@ public class Team {
         this(name, color, null);
     }
 
-    public Team(String name, Scalar color, Player[] players) {
+    public Team(String name, Scalar color, List<Player> players) {
+        this(color, players);
         this.name = name;
-        setColor(color);
-        setPlayers(players);
     }
 
     public Scalar getColor() {
@@ -35,11 +36,16 @@ public class Team {
         this.color = color;
     }
 
-    public Player[] getPlayers() {
+    public List<Player> getPlayers() {
         return players;
     }
 
-    public void setPlayers(Player[] players) {
+    public void addPlayer(Player player){
+        getPlayers().add(player);
+        player.setTeam(this);
+    }
+
+    public void setPlayers(List<Player> players) {
         this.players = players;
     }
 
@@ -50,5 +56,4 @@ public class Team {
     public void setName(String name) {
         this.name = name;
     }
-    
 }

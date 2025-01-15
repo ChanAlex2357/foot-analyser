@@ -1,13 +1,15 @@
 package foot.entity;
+import java.awt.Dimension;
+import java.awt.Image;
+
 import javax.swing.*;
 
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 
 import foot.cv.Edge;
 import foot.cv.RectCv;
 import foot.cv.paint.Paint;
-
-import java.awt.*;
 
 public class Terrain extends TerrainEntity{
     private Image image;
@@ -104,15 +106,68 @@ public class Terrain extends TerrainEntity{
     }
 
     public Edge[] getGoalEdges(){
-        Edge[] edges = null;
-        if (isVertical) {
-            
-        }
+        Edge[] edges = new Edge[2];
 
+        if (isVertical) {
+            edges[0] = getRectangle().getTopEdge();
+            edges[1] = getRectangle().getBottomEdge();
+        }
+        else {
+            edges[0] = getRectangle().getLeftEdge();
+            edges[1] = getRectangle().getRightEdge();
+        }
         return edges;
     }
 
     public Edge[] getSideEdges(){
-        return null;
+        Edge[] edges = new Edge[2];
+
+        if (isVertical) {
+            edges[0] = getRectangle().getLeftEdge();
+            edges[1] = getRectangle().getRightEdge();
+        }
+        else {
+            edges[0] = getRectangle().getTopEdge();
+            edges[1] = getRectangle().getBottomEdge();
+        }
+        return edges;
+    }
+
+    @Override
+    public void draw(Mat src, Paint painter) {
+        painter.paintRectangles(src, rectangle);
+    }
+
+    public double calcDistance(double a, double b){
+        return Math.abs(a-b);
+    }
+    public double calcDistance(Player player , Edge edge){
+        Point edgePoint = edge.getStartPoint();
+        double distance = 0 ;
+        if (isVertical) {
+            double y_ref = edgePoint.y;
+            distance = Math.abs( y_ref - player.getY());
+        }
+        else {
+            double x_ref = edgePoint.x;
+            distance = calcDistance(x_ref,player.getX());
+        }
+        return distance;
+    }
+    public Player findClosestPlayer(Edge edge , Player[] players){
+        Player closest = null;
+        double closeDistance = Integer.MAX_VALUE;
+        for (Player player : players) {
+            double calc_distance = calcDistance(player, edge);
+            if (closest == null || closeDistance > calc_distance) {
+                closest = player;
+                closeDistance = calc_distance;
+            }
+        }
+        return closest;
+    }
+
+    public void dispatchEdges(){
+        
     }
 }

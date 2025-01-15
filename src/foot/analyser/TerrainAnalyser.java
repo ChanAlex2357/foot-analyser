@@ -10,7 +10,6 @@ import foot.cv.Edge;
 import foot.cv.RectCv;
 import foot.cv.detector.CircleDetector;
 import foot.cv.detector.RectangleDetector;
-import foot.cv.paint.Paint;
 import foot.cv.util.ImageUtils;
 import foot.entity.Ball;
 import foot.entity.Player;
@@ -106,7 +105,7 @@ public class TerrainAnalyser {
         paintBall();
     }
     public void paintTerrain(){
-        this.getTerrain().draw(imageSrc);
+        // this.getTerrain().draw(imageSrc);
     }
     public void paintRectangles(){
         paintTerrain();
@@ -130,7 +129,7 @@ public class TerrainAnalyser {
                 if (Ball.isBallColor(color)) {continue;}
                 // Get the color at the center of the circle
                 Scalar colorScalar = new Scalar(color);
-                Player newPlayer = new Player(centerX, centerY, radius, colorScalar);
+                Player newPlayer = new Player(centerX, centerY, radius, colorScalar , null);
                 players.add(newPlayer);
             }
         }
@@ -264,22 +263,20 @@ public class TerrainAnalyser {
         // Assuming players are divided into two teams based on their colors
         List<Player> team1Players = new ArrayList<>();
         List<Player> team2Players = new ArrayList<>();
-        Scalar team1Color = players.get(0).getColor();
-        Scalar team2Color = null;
+        Team team1 = new Team("Team 1", players.get(0).getColor(), team1Players);
+        Team team2 = new Team("Team 2", null, team2Players);
 
         for (Player player : players) {
-            if (player.getColor().equals(team1Color)) {
+            if (player.getColor().equals(team1.getColor())) {
                 team1Players.add(player);
+                player.setTeam(null);
             } else {
-                if (team2Color == null) {
-                    team2Color = player.getColor();
+                if (team2.getColor() == null) {
+                    team2.setColor(player.getColor());
                 }
                 team2Players.add(player);
             }
         }
-
-        Team team1 = new Team("Team 1", team1Color, team1Players.toArray(new Player[0]));
-        Team team2 = new Team("Team 2", team2Color, team2Players.toArray(new Player[0]));
         getTerrain().setTeams(new Team[]{team1, team2});
     }
     public RectangleDetector getRectangleDetector() {

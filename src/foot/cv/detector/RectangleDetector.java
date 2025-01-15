@@ -41,7 +41,6 @@ public class RectangleDetector extends Detector {
                 Point[] points = approx.toArray();
                 RectCv rectCv = new RectCv(points);
                 rects.add(rectCv);
-                System.out.println("RECT POINTS : "+rectCv);
                 for (int i = 0; i < 4; i++) {
                     Imgproc.line(rectangles, points[i], points[(i + 1) % 4], new Scalar(0, 255, 0), 3);
                 }
