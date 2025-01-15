@@ -21,7 +21,8 @@ public class CircleEntitty extends TerrainEntity{
         this.radius = radius;
     }
 
-    public void paint(Mat src){
+    @Override
+    public void draw(Mat src){
         Paint p = new Paint();
         Scalar c = borderColor;
         if (c == null) {

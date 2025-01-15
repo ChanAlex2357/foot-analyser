@@ -1,7 +1,5 @@
 package foot.analyser;
 
-import foot.cv.paint.Paint;
-
 import java.util.List;
 import java.util.ArrayList;
 
@@ -9,6 +7,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 
 import foot.cv.detector.CircleDetector;
+import foot.cv.detector.RectangleDetector;
 import foot.cv.util.ImageUtils;
 import foot.entity.Ball;
 import foot.entity.Player;
@@ -18,18 +17,31 @@ import ui.components.panel.CircleDetectionConfigPanel;
 
 public class TerrainAnalyser {
     CircleDetector circleDetector;
+    RectangleDetector rectangleDetector;
     Mat imageSrc;
     Terrain terrain;
     Mat circles;
+    Mat rectangles;
     public TerrainAnalyser(Terrain terrain,CircleDetectionConfigPanel configPanel){
         setTerrain(terrain);
         setImageSrc( ImageUtils.loadImage(getTerrain().getImagePath()));
+        setDetectors(configPanel);
+        loadShapes();
+        loadEntities();
+    }
+    private void setDetectors(CircleDetectionConfigPanel configPanel){
         setCircleDetector(new CircleDetector(configPanel));
-        setCircles(circleDetector.detect(getImageSrc()));
+        setRectangleDetector(new RectangleDetector());
+    }
+    private void loadShapes(){
+        setCircles(getCircleDetector().detect(getImageSrc()));
+        setRectangles(getRectangleDetector().detect(getImageSrc()));
+    }
+    public void loadEntities(){
         loadBall();
         loadTeams();
-        
     }
+
     public CircleDetector getCircleDetector() {
         return circleDetector;
     }
@@ -58,7 +70,7 @@ public class TerrainAnalyser {
     public void paintBall(){
         Ball ball = getTerrain().getBall();
         if (ball != null) {
-            ball.paint(imageSrc);   
+            ball.draw(imageSrc);   
         }
     }
 
@@ -68,7 +80,7 @@ public class TerrainAnalyser {
             return;
         }
         for (Player player : players) {
-            player.paint(imageSrc);
+            player.draw(imageSrc);
         }
     }
     public void paintCircles(){
@@ -90,12 +102,10 @@ public class TerrainAnalyser {
 
             // Vérifier que les coordonnées sont valides
             if (centerX >= 0 && centerX < getImageSrc().cols() && centerY >= 0 && centerY < getImageSrc().rows()) {
-                // Get the color at the center of the circle
                 double[] color = getImageSrc().get(centerY, centerX);
+                if (Ball.isBallColor(color)) {continue;}
+                // Get the color at the center of the circle
                 Scalar colorScalar = new Scalar(color);
-                if (color != null) {
-                    System.out.println("Circle " + i + " color: B=" + color[0] + ", G=" + color[1] + ", R=" + color[2]);
-                }
                 Player newPlayer = new Player(centerX, centerY, radius, colorScalar);
                 players.add(newPlayer);
             }
@@ -120,7 +130,6 @@ public class TerrainAnalyser {
                 // Get the color at the center of the circle
                 double[] color = getImageSrc().get(centerY, centerX);
                 if (color != null && color[0] == 0 && color[1] == 0 && color[2] == 0) {
-                    System.out.println("Ballon");
                     Scalar colorScalar = new Scalar(color);
                     getTerrain().setBall(
                         new Ball(centerX, centerY, radius, colorScalar)
@@ -149,7 +158,6 @@ public class TerrainAnalyser {
                 playerWithBall = player;
             }
         }
-
         return playerWithBall;
     }
 
@@ -174,6 +182,7 @@ public class TerrainAnalyser {
 
     public void loadOffside(){
         List<Player> players = getOffsidePlayers();
+        System.out.println("OFFSIDE : "+players.size());
         for (Player player : players) {
             player.setBorderColor(new Scalar(128, 0, 128)); // Violet color
         }
@@ -184,7 +193,8 @@ public class TerrainAnalyser {
         if (playerWithBall == null) {
             return new ArrayList<>();
         }
-
+        System.out.println("Player with ball : "+playerWithBall);
+        playerWithBall.setBorderColor(new Scalar(128, 0, 128));
         Scalar attackingTeamColor = playerWithBall.getColor();
         Team[] teams = getTerrain().getTeams();
         Team attackingTeam = null;
@@ -247,5 +257,17 @@ public class TerrainAnalyser {
         Team team1 = new Team("Team 1", team1Color, team1Players.toArray(new Player[0]));
         Team team2 = new Team("Team 2", team2Color, team2Players.toArray(new Player[0]));
         getTerrain().setTeams(new Team[]{team1, team2});
+    }
+    public RectangleDetector getRectangleDetector() {
+        return rectangleDetector;
+    }
+    public void setRectangleDetector(RectangleDetector rectangleDetector) {
+        this.rectangleDetector = rectangleDetector;
+    }
+    public Mat getRectangles() {
+        return rectangles;
+    }
+    public void setRectangles(Mat rectangles) {
+        this.rectangles = rectangles;
     }
 }

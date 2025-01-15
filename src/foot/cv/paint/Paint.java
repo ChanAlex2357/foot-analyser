@@ -17,4 +17,13 @@ public class Paint {
             new Paint().paintCircle(src, center, radius,new Scalar(0,255,0));
         }
     }
+
+    public void paintRectangles(Mat src, Mat rectangles) {
+        for (int i = 0; i < rectangles.rows(); i++) {
+            double[] rect = rectangles.get(i, 0);
+            Point pt1 = new Point(rect[0], rect[1]);
+            Point pt2 = new Point(rect[2], rect[3]);
+            Imgproc.rectangle(src, pt1, pt2, new Scalar(0, 255, 0), 3);
+        }
+    }
 }

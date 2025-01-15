@@ -1,11 +1,10 @@
 package foot.entity;
 
+import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 
-import foot.cv.paint.Paint;
-
-public class TerrainEntity {
+public abstract class TerrainEntity {
     Point coord;
     Scalar color;
     Scalar borderColor;
@@ -46,5 +45,5 @@ public class TerrainEntity {
         this.borderColor = borderColor;
     }
 
-    
+    public abstract void draw(Mat src);    
 }
