@@ -3,6 +3,8 @@ import javax.swing.*;
 
 import org.opencv.core.Mat;
 
+import foot.cv.Edge;
+import foot.cv.RectCv;
 import foot.cv.paint.Paint;
 
 import java.awt.*;
@@ -12,9 +14,7 @@ public class Terrain extends TerrainEntity{
     private Dimension size;
     private boolean isVertical;
     private String imagePath;
-    private Point[] shapes;
-
-
+    private RectCv rectangle;
     private Player[] players;
     private Ball ball;
     private Team[] teams;
@@ -85,14 +85,34 @@ public class Terrain extends TerrainEntity{
     @Override
     public void draw(Mat src) {
         Paint paint = new Paint();
-        paint.paintRectangles(src, src);
+        paint.paintRectangles(src, getRectangle());
     }
 
-    public Point[] getShapes() {
-        return shapes;
+    public int getMaxX(){
+        return this.getX() + this.getSize().width;
+    }
+    public int getMaxY(){
+        return this.getY() + this.getSize().height;
     }
 
-    public void setShapes(Point[] shapes) {
-        this.shapes = shapes;
+    public RectCv getRectangle() {
+        return rectangle;
+    }
+
+    public void setRectangle(RectCv rectangle) {
+        this.rectangle = rectangle;
+    }
+
+    public Edge[] getGoalEdges(){
+        Edge[] edges = null;
+        if (isVertical) {
+            
+        }
+
+        return edges;
+    }
+
+    public Edge[] getSideEdges(){
+        return null;
     }
 }

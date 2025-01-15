@@ -5,6 +5,7 @@ import org.opencv.core.Scalar;
 public class Team {
     Scalar color;
     Player[] players;
+    Player goal;
     private String name;
 
     public Team(Scalar color){

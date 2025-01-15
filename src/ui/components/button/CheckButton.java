@@ -1,15 +1,11 @@
 package ui.components.button;
 
 import java.awt.event.ActionEvent;
-import java.util.List;
-
 import org.opencv.core.Mat;
 
 import ui.frame.FootAnalyserFrame;
 import ui.frame.ImageFrame;
 import foot.analyser.TerrainAnalyser;
-import foot.entity.Ball;
-import foot.entity.Player;
 import foot.entity.Terrain;
 import foot.utils.MatUtils;
 import ui.components.panel.CircleDetectionConfigPanel;
@@ -31,7 +27,7 @@ public class CheckButton extends ActionButton {
             CircleDetectionConfigPanel configPanel = footAnalyserFrame.getConfigPanel();
             TerrainAnalyser terrainAnalyser = new TerrainAnalyser(terrain, configPanel);
             terrainAnalyser.loadOffside();
-            terrainAnalyser.paintCircles();
+            terrainAnalyser.paint();
             Mat src = terrainAnalyser.getImageSrc();
             ImageFrame imageFrame = new ImageFrame(MatUtils.Mat2BufferedImage(src));
             imageFrame.setVisible(true);

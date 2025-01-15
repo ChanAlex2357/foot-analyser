@@ -3,6 +3,7 @@ package foot.cv.detector;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 
+import foot.cv.RectCv;
 import foot.cv.util.ImageUtils;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ public class RectangleDetector extends Detector {
     static {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
     }
-
+    RectCv[] rectangles;
     public Mat detect(String imagePath) {
         Mat src = ImageUtils.loadImage(imagePath);
         return detect(src);
@@ -30,17 +31,31 @@ public class RectangleDetector extends Detector {
         Imgproc.findContours(edges, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 
         Mat rectangles = src.clone();
+        List<RectCv> rects = new ArrayList<>();
         for (MatOfPoint contour : contours) {
             MatOfPoint2f contour2f = new MatOfPoint2f(contour.toArray());
             MatOfPoint2f approx = new MatOfPoint2f();
             Imgproc.approxPolyDP(contour2f, approx, Imgproc.arcLength(contour2f, true) * 0.02, true);
-            if (approx.total() == 4 && Math.abs(Imgproc.contourArea(approx)) > 1000 && Imgproc.isContourConvex(new MatOfPoint(approx.toArray()))) {
+            int vertices = (int) approx.total();
+            if (vertices == 4 && Math.abs(Imgproc.contourArea(approx)) > 1000 && Imgproc.isContourConvex(new MatOfPoint(approx.toArray()))) {
                 Point[] points = approx.toArray();
+                RectCv rectCv = new RectCv(points);
+                rects.add(rectCv);
+                System.out.println("RECT POINTS : "+rectCv);
                 for (int i = 0; i < 4; i++) {
                     Imgproc.line(rectangles, points[i], points[(i + 1) % 4], new Scalar(0, 255, 0), 3);
                 }
             }
         }
+        setRectangles(rects.toArray(new RectCv[0]));
         return rectangles;
+    }
+
+    public RectCv[] getRectangles() {
+        return rectangles;
+    }
+
+    private void setRectangles(RectCv[] rectCv) {
+        this.rectangles = rectCv;
     }
 }

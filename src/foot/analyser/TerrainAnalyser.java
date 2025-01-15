@@ -6,8 +6,11 @@ import java.util.ArrayList;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 
+import foot.cv.Edge;
+import foot.cv.RectCv;
 import foot.cv.detector.CircleDetector;
 import foot.cv.detector.RectangleDetector;
+import foot.cv.paint.Paint;
 import foot.cv.util.ImageUtils;
 import foot.entity.Ball;
 import foot.entity.Player;
@@ -20,8 +23,9 @@ public class TerrainAnalyser {
     RectangleDetector rectangleDetector;
     Mat imageSrc;
     Terrain terrain;
+    // Shapes
     Mat circles;
-    Mat rectangles;
+    RectCv[] rectangles;
     public TerrainAnalyser(Terrain terrain,CircleDetectionConfigPanel configPanel){
         setTerrain(terrain);
         setImageSrc( ImageUtils.loadImage(getTerrain().getImagePath()));
@@ -35,13 +39,27 @@ public class TerrainAnalyser {
     }
     private void loadShapes(){
         setCircles(getCircleDetector().detect(getImageSrc()));
-        setRectangles(getRectangleDetector().detect(getImageSrc()));
+        setRectangles(getRectangleDetector());
     }
     public void loadEntities(){
         loadBall();
         loadTeams();
+        loadTerrain();
+        loadEdges();
     }
-
+    public void loadEdges(){
+        Edge[] edges = getTerrain().getGoalEdges();
+    }
+    public void loadTerrain() {
+        int max_size = 0;
+        RectCv max = null;
+        for (RectCv rectCv : rectangles) {
+            if (rectCv.area() > max_size) {
+                max = rectCv;
+            }
+        }
+        this.getTerrain().setRectangle(max);
+    }
     public CircleDetector getCircleDetector() {
         return circleDetector;
     }
@@ -86,6 +104,12 @@ public class TerrainAnalyser {
     public void paintCircles(){
         paintPlayers();
         paintBall();
+    }
+    public void paintTerrain(){
+        this.getTerrain().draw(imageSrc);
+    }
+    public void paintRectangles(){
+        paintTerrain();
     }
 
     public List<Player> loadPlayers() {
@@ -264,10 +288,19 @@ public class TerrainAnalyser {
     public void setRectangleDetector(RectangleDetector rectangleDetector) {
         this.rectangleDetector = rectangleDetector;
     }
-    public Mat getRectangles() {
+    public RectCv[] getRectangles() {
         return rectangles;
     }
-    public void setRectangles(Mat rectangles) {
-        this.rectangles = rectangles;
+    public void setRectangles(RectCv[] rects) {
+        this.rectangles = rects;
+    }
+    private void setRectangles(RectangleDetector rectangleDetector){
+        rectangleDetector.detect(getImageSrc());
+        setRectangles(rectangleDetector.getRectangles());
+    }
+
+    public void paint(){
+        paintCircles();
+        paintRectangles();
     }
 }
